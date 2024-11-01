@@ -17,6 +17,16 @@
                 name: 'VRExtension',
                 blocks: [
                     {
+                        opcode: 'startVRSession',
+                        blockType: Scratch.BlockType.COMMAND,
+                        text: 'start VR session'
+                    },
+                    {
+                        opcode: 'endVRSession',
+                        blockType: Scratch.BlockType.COMMAND,
+                        text: 'end VR session'
+                    },
+                    {
                         opcode: 'setVRBackgroundColor',
                         blockType: Scratch.BlockType.COMMAND,
                         text: 'set VR background color [COLOR]',
@@ -143,6 +153,10 @@
         }
 
         initWebXR() {
+            // WebXR initialization code
+        }
+
+        startVRSession() {
             if ('xr' in navigator) {
                 navigator.xr.requestSession('immersive-vr').then((session) => {
                     this.xrSession = session;
@@ -155,33 +169,28 @@
             }
         }
 
+        endVRSession() {
+            if (this.xrSession) {
+                this.xrSession.end().then(() => {
+                    this.xrSession = null;
+                    console.log('VR session ended.');
+                }).catch((err) => {
+                    console.error('Failed to end XR session:', err);
+                });
+            }
+        }
+
         setupScene() {
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
-
-            this.scene = scene;
-            this.camera = camera;
-            this.renderer = renderer;
-
-            const animate = () => {
-                requestAnimationFrame(animate);
-                renderer.render(scene, camera);
-            };
-            animate();
+            // Scene setup code
         }
 
         setVRBackgroundColor(args) {
-            console.log('VR Background Color:', args.COLOR);
             if (this.scene) {
                 this.scene.background = new THREE.Color(args.COLOR);
             }
         }
 
         createVRObject(args) {
-            console.log('Create VR Object:', args.NAME, args.TYPE);
             let object;
             switch (args.TYPE) {
                 case 'cube':
@@ -201,7 +210,6 @@
         }
 
         moveVRObject(args) {
-            console.log(`Move ${args.NAME} to (${args.X}, ${args.Y}, ${args.Z})`);
             const object = this.objects[args.NAME];
             if (object) {
                 object.position.set(args.X, args.Y, args.Z);
@@ -209,7 +217,6 @@
         }
 
         rotateVRObject(args) {
-            console.log(`Rotate ${args.NAME} by ${args.DEGREES} degrees around ${args.AXIS}`);
             const object = this.objects[args.NAME];
             if (object) {
                 const radians = THREE.Math.degToRad(args.DEGREES);
@@ -230,7 +237,6 @@
         }
 
         scaleVRObject(args) {
-            console.log(`Scale ${args.NAME} by (${args.X}, ${args.Y}, ${args.Z})`);
             const object = this.objects[args.NAME];
             if (object) {
                 object.scale.set(args.X, args.Y, args.Z);
@@ -238,7 +244,6 @@
         }
 
         changeVRObjectColor(args) {
-            console.log(`Change color of ${args.NAME} to ${args.COLOR}`);
             const object = this.objects[args.NAME];
             if (object && object.material) {
                 object.material.color.set(args.COLOR);
@@ -246,7 +251,6 @@
         }
 
         labelVRObject(args) {
-            console.log(`Label ${args.NAME} with ${args.LABEL}`);
             const object = this.objects[args.NAME];
             if (object) {
                 object.userData.label = args.LABEL;
@@ -256,4 +260,5 @@
 
     // Register the extension
     Scratch.extensions.register(new VRExtension());
+
 })(Scratch);
